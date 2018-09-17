@@ -1,0 +1,17 @@
+<body>
+        <ul id="nav" class="nav">
+                <li><a>Subscription</a>
+                        <ul>
+                                {% for x in data.value %}
+                                <li><a href="{{ x.id }}">{{ x.displayName }}</a>
+                                        <ul>
+                                                {% for y in x.resourceGroup %}
+                                                <li><a href="{{ x.id }}/{{ y.name }}">{{ y.name }}</a></li>
+                                                {% endfor %}
+                                        </ul>
+                                </li>
+                                {% endfor %}
+                        </ul>
+                </li>
+        </ul>
+</body>

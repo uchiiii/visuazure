@@ -1,0 +1,164 @@
+.title p{
+  font-size: 1.00em; 
+}
+
+p{
+  font-size: 0.75em;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.nav {
+  width: 100%;
+  height: 50px;
+  margin: 0 auto;
+  padding: 0;
+  display: flex;
+  background: #083163;
+}
+.nav li {
+  position: relative;
+  list-style: none;
+}
+.nav li a {
+  display: block;
+  width: 270px;
+  height: 50px;
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+  /*line-height: 2.8; */
+  line-height: 50px;
+  background: #083163;
+  text-decoration: none;
+  border-right: 1px solid #eee;
+  box-sizing: border-box;
+}
+
+.nav > li:hover > a {/*layer-1*/
+  color: #fff;
+  background: #083163;
+}
+.nav > li li:hover > a {/*layer-2*/
+  color: #fff;
+  background: #083163;
+  z-index: 1000;
+}
+.nav li ul {
+  top: 50px;
+  left: -40px;
+  position: absolute;
+  z-index: 1001;
+}
+.nav li ul li {
+  overflow: hidden;
+  height: 0;
+  z-index: 1002;
+}
+.nav li ul li a {
+  border-top: 1px solid #eee;
+  z-index: 1003;
+}
+.nav li:hover > ul > li {
+  overflow: visible;
+  height: 50px;
+  z-index: 1004;
+}
+.nav li ul li ul {
+  top: 0;
+  left: 230px;
+  z-index: 1005;
+}
+.nav li ul li ul:before {/*layer-2▷*/
+  position: absolute;
+  content: "";
+  top: 15px;
+  left: 30px;
+  border: 5px solid transparent;
+  border-left: 5px solid #fff;
+  z-index: 1006;
+}
+
+.nav li ul li ul li:hover > a {/*layer-3*/
+  color: #fff;
+  background: #083163;
+}
+.nav li ul li ul.left {
+  top: 0;
+  left: -190px;
+}
+.nav li ul li ul.left:before,/*layer-2-left▷*/
+.nav li ul li ul li ul.left:before {/*layer-3-left▷*/
+  position: absolute;
+  content: "";
+  top: 15px;
+  left: 190px;
+  border: 5px solid transparent;
+  border-right: 5px solid #fff;
+}
+.nav li ul li ul.left li:hover > a {/*layer-2-left*/
+  color: #fff;
+  background:#083163;
+}
+.nav li ul li ul li ul.left li:hover > a {/*layer-3-left*/
+  color: #fff;
+  background:#083163;
+}
+
+  
+.boxContainer{
+  overflow: hidden;
+  z-index: -1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#style-1::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	border-radius: 5px;
+	background-color: #F5F5F5;
+}
+
+#style-1::-webkit-scrollbar
+{
+	width: 8px;
+	background-color: #F5F5F5;
+}
+
+#style-1::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: #555;
+}
+
+.scrollbar
+{
+  float: left;
+	height: 200px;
+	width: 90%;
+	background: #F5F5F5;
+	overflow-y: scroll;
+  margin-bottom: 25px;
+}
+
+#loading {
+  display: table;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  opacity: 0.8;
+}
+ 
+#loading .loadingMsg {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  padding-top: 140px;
+  background: url("./PNG/kurukuru.gif") center center no-repeat;
+}

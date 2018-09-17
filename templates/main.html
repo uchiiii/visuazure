@@ -1,0 +1,71 @@
+<!DOCTYPE html> 
+<html>
+<head>
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='main.css')}}">
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='DataInspector.css')}}">
+        <script sec="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+</head>
+<body style="background-color:#DAE4E4">
+        <ul id="nav" class="nav">
+                <li><a href="/home">Home</a></li>
+                <li><a>Subscription</a>
+                        <ul>
+                                {% for x in data.value %}
+                                <li><a href="/subscriptions/{{ x.subscriptionId }}">{{ x.displayName }}</a>
+                                        <ul>
+                                                {% for y in x.resourceGroup %}
+                                                <li><a href="/subscriptions/{{ x.subscriptionId }}/{{ y.name }}">{{ y.name }}</a></li>
+                                                {% endfor %}
+                                        </ul>
+                                </li>
+                                {% endfor %}
+                        </ul>
+                </li>
+                <li><a>How to Use</a>
+                        <ul>
+                                <li><a href="/usage">Load</a></li>
+                                <li><a href="/usage">Update</a></li>
+                        </ul>
+                </li>
+                <li><a>Account</a>
+                        <ul>
+                                <li><a href="/confirm_logout">Logout</a></li>
+                                <li><a href="/user_info">User INFO</a></li>
+                        </ul>
+                </li>
+        </ul>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/1.8.28/go-debug.js"></script>
+        <div class="boxContainer">
+                <div class='box' id="myDiagramDiv" style="width:70%; height:700px; background-color: white; border: #006699 solid 5px; margin-top: 5px  "></div>
+                <div class='box' id="detailInfo" style="width: 28%; height:700px; background-color:#DAE4E4; margin-top: 5px ">
+                        <div class="scrollbar" id="style-1" style="height:30%; width:300; border:#006699 solid 5px; background-color: white; margin-bottom:5px; box-shadow: 0 5px 10px rgba(0, 0, 0, 0.42);" >
+                                <div style="margin: 10px; background-color: white">
+                                        <p id="title">Environment</p>
+                                        <p>Subscription : {{sub["value"]["displayName"]}}</p>
+                                        <p>Subscription ID :　{{sub["value"]["subscriptionId"]}}</p>
+                                        <p>Resource group : {{sub["value"]["name"]}}</p>
+                                        <p>Location : {{sub["value"]["location"]}}</p>
+                                        <div style="margin: 5px">
+                                                <button onclick="showError()">Add errors</button>
+                                        </div>                       
+                                </div>
+                        </div>
+                               
+                        <div class="scrollbar" id="style-1" style="height:68%; border:#006699 solid 5px; background-color: white; box-shadow: 0 5px 10px rgba(0, 0, 0, 0.42);" >
+                                <div style="margin: 10px; background-color: white">
+                                        <p id="title">Resource Info</p>
+                                        <div id="myInspectorDiv" class="inspector"> </div>
+                                </div>                       
+                               
+                        </div>
+                                               
+                </div>
+        </div>
+        <script src="{{url_for('static', filename='DataInspector.js')}}"></script>
+        <script src="{{url_for('static', filename='render_preview.js')}}"></script>
+</body>
+</html>
+
+
