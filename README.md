@@ -9,7 +9,8 @@ By using this app, you can get a straightforward view of your resource group lik
 
 ## DEMO
 ![example](https://github.com/uchiiii/visuazure/tree/master/static/PNG/example.PNG)
+In this case, you can easily understand webapp is deployed from Github and has some data connection with two SQL databases. Moreover, the subnets and gateways are also visualized. 
 
 ## Requirement
-Python 3.*.*
+Python 3.x.x
 
