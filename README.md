@@ -8,7 +8,7 @@ In the Azure portal, it is sometimes troublesome to understand how each resource
 By using this app, you can get a straightforward view of your resource group like below.
 
 ## DEMO
-![Example](https://github.com/uchiiii/visuazure/tree/master/static/PNG/example.PNG)
+![Example](http://github.com/uchiiii/visuazure/master/static/PNG/example.PNG)
 
 ## Requirement
 Python 3.*.*
