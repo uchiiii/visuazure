@@ -12,7 +12,7 @@ By using this app, you can get a straightforward view of your resource group lik
 In this case, you can easily understand webapp is deployed from Github and has some data connection with two SQL databases. Moreover, the subnets and gateways are also visualized. 
 
 ## Requirement
--Python 3.x.x
-    -flask
-    -adal
+- Python 3.x.x
+    - flask
+    - adal
 
