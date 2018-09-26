@@ -1,3 +1,10 @@
+/*
+ * This is for each resource group page and 
+ * the baic fuctionality is to fetch data from the ARM via server 
+ * and visualize it 
+ *   
+ */
+
 function dispLoading(msg){
   if( msg == undefined ){
     msg = "";
@@ -12,10 +19,6 @@ function removeLoading(){
   $("#loading").remove();
 }
 
-/*
-data structure dealt with here is like
-{'subscription':'free subscrioption', 'resource group name':'visazure', 'resources':{'spl-darabase':location}}
-*/
 var resource_array = [];
 var list = [
   {'url': '/get_virtual_machine'},
@@ -25,6 +28,13 @@ var list = [
   {'url': '/get_sql_database'},
   {'url': '/get_webapps'}
 ];
+
+//execute get_json on page ready 
+var path = location.pathname;
+splitted = path.split('/');
+subscription = splitted[2];
+resource_name = splitted[3];
+window.onload = get_json(subscription, resource_name);
 
 //get data
 function get_json(subscription, resource_name){
@@ -55,32 +65,22 @@ function get_json(subscription, resource_name){
       })
     }
 }
-//execute get_json on page ready 
-var path = location.pathname;
-splitted = path.split('/');
-subscription = splitted[2];
-resource_name = splitted[3];
-window.onload = get_json(subscription, resource_name);
-
 
 function drawGraph(data){
   var $ = go.GraphObject.make;
   myDiagram =
     $(go.Diagram, "myDiagramDiv",
       {
-        "undoManager.isEnabled": true, // enable Ctrl-Z to undo and Ctrl-Y to redo
-        // position the graph in the middle of the diagram
+        "undoManager.isEnabled": true, 
         initialContentAlignment: go.Spot.Center,
-        // allow double-click in background to create a new node
         "clickCreatingTool.archetypeNodeData": { text: "Node", color: "white" },
-        // allow Ctrl-G to call groupSelection()
         "commandHandler.archetypeGroupData": { text: "Group", isGroup: true, color: "blue" },
 
       });
 
   // define a simple Node template
   myDiagram.nodeTemplate =
-    $(go.Node, "Horizontal", //how to put each elements
+    $(go.Node, "Horizontal", 
       { background: "#44CCFF" },
       $(go.Picture,
         { margin: 10, width: 50, height: 50, background: "white" },
@@ -91,21 +91,17 @@ function drawGraph(data){
       $(go.TextBlock,
         "Default Text",
         { margin: 12, stroke: "white", font: "bold 16px sans-serif" },
-        // TextBlock.text is data bound to the "name" attribute of the model data
         new go.Binding("text", "category")),
-      //$(go.Shape, "FireHazard",
-      //{ desiredSize: new go.Size(25, 25), fill: "red", alignment: new go.Spot(1, 0, 0, 0), opacity: 0.0 },
-      //new go.Binding("opacity", "star", function(v) { return v ? 1.0 : 0.0; }))
     );
 
   myDiagram.linkTemplate =
   $(go.Link,
     { routing: go.Link.Orthogonal, corner: 5 },
-    $(go.Shape, { strokeWidth: 3, stroke: "#555" })); // the link shape
+    $(go.Shape, { strokeWidth: 3, stroke: "#555" })); 
 
   //group information
-  function groupInfo(adornment) {  // takes the tooltip or context menu, not a group node data object
-    var g = adornment.adornedPart;  // get the Group that the tooltip adorns
+  function groupInfo(adornment) {
+    var g = adornment.adornedPart;  
     var mems = g.memberParts.count;
     var links = 0;
     g.memberParts.each(function(part) {
@@ -120,51 +116,35 @@ function drawGraph(data){
     $(go.TextBlock,
       {
         font: "bold 19px sans-serif",
-        isMultiline: false,  // don't allow newlines in text
-        //editable: true  // allow in-place editing by user
+        isMultiline: false,  
       },
       new go.Binding("text", "text").makeTwoWay(),
       new go.Binding("stroke", "color")),
     $(go.Picture,
       { margin: 10, width: 50, height: 50, background: "white" },
-      // Picture.source is data bound to the "source" attribute of the model data
       new go.Binding("source")),
     $(go.Panel, "Auto",
       { name: "PANEL" },
-      $(go.Shape, "Rectangle",  // the rectangular shape around the members
+      $(go.Shape, "Rectangle", 
         {
           fill: "rgba(128,128,128,0.2)", stroke: "gray", strokeWidth: 3,
-          portId: "", cursor: "pointer",  // the Shape is the port, not the whole Node
-          // allow all kinds of links from and to this port
+          portId: "", cursor: "pointer",  
           fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
           toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
         }),
-      $(go.Placeholder, { margin: 10, background: "transparent" })  // represents where the members are
+      $(go.Placeholder, { margin: 10, background: "transparent" }) 
     ),
-    { // this tooltip Adornment is shared by all groups
+    {
       toolTip:
         $(go.Adornment, "Auto",
           $(go.Shape, { fill: "#FFFFCC" }),
           $(go.TextBlock,
-            "Default Text",  // the initial value for TextBlock.text
-            // some room around the text, a larger font, and a white stroke:
+            "Default Text",  
             { margin: 12, stroke: "white", font: "bold 16px sans-serif" },
-            // TextBlock.text is data bound to the "name" attribute of the model data
             new go.Binding("text", "name"))
         ),
-      // the same context menu Adornment is shared by all groups
-      //contextMenu: partContextMenu
     }
   );
-
-  //key is the place in an array
-  /*
-  myDiagram.addDiagramListener("ObjectSingleClicked",
-    function(e) {
-      var key = e.subject.part.data.key;
-      targetResource = resources["resources"][Number(key)] 
-    });
-  */
 
   var model = $(go.GraphLinksModel);
 
@@ -183,6 +163,26 @@ function drawGraph(data){
     if(data[j]["category"] == "Virtual Network"){
       dataJson["isGroup"] = true;
       dataJson["address space"] = data[j]["properties"]["addressSpace"]["addressPrefixes"];
+      if(data[j]["properties"]["subnets"] != undefined){
+        subnets = data[j]["properties"]["subnets"];
+        for(var i=0; i<subnets.length; i++){
+          gateway = {};
+          gateway["key"] = "gateway" + String(i);
+          gateway["group"] = j;
+          gateway["subnet"] = subnets[i]["name"]
+          gateway["subnet address prefixes"] =  subnets[i]["properties"]["addressPrefix"];
+          if(subnets[i]["properties"]["ipconfig"] != undefined){
+            gateway["category"] = "Gateway";
+            gateway["source"] = "/static/PNG/Azure VPN Gateway_color.png";
+            gateway["id"] = subnets[i]["properties"]["ipconfig"]["id"];
+          }else if(subnets[i]["properties"]["applicationGatewayIPConfigurations"] != undefined){
+            gateway["category"] = "Application Gateway";
+            gateway["source"] = "/static/PNG/Azure Application Gateway_COLOR.png";
+            gateway["id"] = subnets[i]["properties"]["applicationGatewayIPConfigurations"]["id"];
+          }
+          nodeData.push(gateway);
+        }
+      }
     }
     else if(data[j]["category"] == "SQL Database"){
       dataJson["server id"] = data[j]["managedBy"];
@@ -233,12 +233,27 @@ function drawGraph(data){
         nodeData.push(app);
       }
       for(key in data[j]["connection string"]){
-        console.log(data[j]["connection string"]);
         connecto = data[j]["connection string"][key]["value"];
         if(connecto != undefined){
-          connecto = connecto.split(',')[0].split(':')[1];
+          if(connecto.slice(0,4) == "Serv"){
+            connecto = connecto.split(',')[0].split(':')[1];
+          }else if(connecto.slice(0,4) == "jdbc"){
+            connecto = connecto.split(':')[2].split('/')[-1];
+          }else if(connecto.slice(0,4) == "Driv"){
+            connecto = connecto.split(';')[1].split(':')[1].split(',')[0];
+          }else{
+            //undefined...
+          }
           conInfo = { "value":connecto, "key": String(j)};
           connecting.push(conInfo);
+        }
+      }
+      if(data[j]["virtualNetworkConnection"].length > 0){
+        for(var i=0; i<nodeData.length; i++){
+          if(nodeData[i]["id"] == data[j]["virtualNetworkConnection"][0]["id"]){
+            nodeLink.push({"from": nodeData[i]["key"], "to": j});
+            break;
+          }
         }
       }
     }
@@ -289,6 +304,8 @@ function drawGraph(data){
       "capacity" : {readOnly: true, show: Inspector.showIfPresent },
       "tier" : { readOnly: true, show: Inspector.showIfNode},
       "size" : {readOnly: true, show: Inspector.showIfNode }, 
+      "subnet" : {readOnly: true, show: Inspector.showIfNode }, 
+      "subnet address prefixes": {readOnly: true, show: Inspector.showIfNode }, 
       "LinkComments": { show: Inspector.showIfLink },
       "isGroup": { readOnly: true, show: Inspector.showIfPresent },
       "flag": { show: Inspector.showIfNode, type: 'checkbox' },
@@ -322,10 +339,8 @@ function showError(){
         contentType: 'application/json'
       })
       .done( function(data) {
-        console.log(data["item"]["judge"])
         myDiagram.model.nodeDataArray[data["num"]]["error"] = data["item"]["judge"];
         doneCount++;
-        console.log(doneCount);
         if(doneCount == nodeData.length){
           console.log(myDiagram.model.nodeDataArray);
           myDiagram.commitTransaction("addError");
@@ -342,6 +357,8 @@ function showError(){
               "capacity" : {readOnly: true, show: Inspector.showIfPresent },
               "tier" : { readOnly: true, show: Inspector.showIfPresent},
               "size" : {readOnly: true, show: Inspector.showIfPresent }, 
+              "subnet" : {readOnly: true, show: Inspector.showIfNode }, 
+              "subnet address prefixes": {readOnly: true, show: Inspector.showIfNode }, 
               "error": {readOnly: true, show: Inspector.showIfPresent },
               "LinkComments": { show: Inspector.showIfLink },
               "isGroup": { readOnly: true, show: Inspector.showIfPresent },
@@ -366,9 +383,4 @@ function showError(){
       doneCount++;
     }
   }
-}
-
-
-function addWarning(){
-
 }

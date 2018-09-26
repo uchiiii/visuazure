@@ -1,3 +1,6 @@
+#Main Server.
+#reference: "https://github.com/Azure-Samples/active-directory-python-webapp-graphapi"
+
 #coding: utf-8
 import adal
 import flask
@@ -115,8 +118,6 @@ def webapp(sub_id, resource_group):
         #auth for other apps
         endpoint = "https://management.azure.com" + item["id"] + "/config/authsettings/list?api-version=2018-02-01"
         authdata = requests.post(endpoint, headers=http_headers, stream=False).json()
-        print("auth data is ")
-        print(authdata)
         item["appauth"] = []
         if authdata["properties"]["googleClientId"] != None:
             item["appauth"].append("google")
@@ -124,7 +125,6 @@ def webapp(sub_id, resource_group):
             item["appauth"].append("facebook")
         if authdata["properties"]["twitterConsumerKey"] != None:
             item["appauth"].append("twitter")
-        #print(item["appauth"])
         #connection string
         endpoint = "https://management.azure.com" + item["id"] + "/config/connectionstrings/list?api-version=2018-02-01"
         constr = requests.post(endpoint, headers=http_headers, stream=False).json()
@@ -133,6 +133,10 @@ def webapp(sub_id, resource_group):
         endpoint = "https://management.azure.com" + item["id"] + "/deployments?api-version=2018-02-01"
         deploy = requests.get(endpoint, headers=http_headers, stream=False).json()
         item["deployment"] = deploy["value"]
+        #virtual Network connetction
+        endpoint = "https://management.azure.com" + item["id"] + "/virtualNetworkConnections?api-version=2018-02-01"
+        vnetcon =  requests.get(endpoint, headers=http_headers, stream=False).json()
+        item["virtualNetworkConnection"] = vnetcon
     return resources
 
 #The below is the process of the application.
@@ -170,6 +174,7 @@ def login():
     resp.headers['location'] = authorization_url
     return resp
 
+#is NOT used
 @app.route("/getTenant")
 def getTenantID(sub_id):
     sub_id = '2446573a-d2e9-4fda-ae3e-f82a58b0da04'
@@ -180,7 +185,6 @@ def getTenantID(sub_id):
 
 @app.route("/getAToken")
 def main_logic():
-    #print("code is {}".format(flask.request.args['code']) )
     code = flask.request.args['code']
     state = flask.request.args['state']
     if state != flask.session['state']:
@@ -196,7 +200,6 @@ def main_logic():
 @app.route('/home')
 def home():
     subscriptions = []
-    resource_groups = []
     if 'access_token' not in flask.session:
         return flask.redirect(flask.url_for('login'))
     #for subscription info
@@ -221,11 +224,6 @@ def home():
         data["value"][i]["resourceGroup"] = data_res["value"]
             
     flask.session["data"] = data
-    print(data)
-    '''
-    subscriptions = ['無料試用版', 'mr2ryosuke']
-    resource_groups = ['visuazure', 'techContainer','e-commerce']
-    '''
     return flask.render_template('home.html', data=data)
 
 @app.route('/subscriptions/<subscription_id>')
@@ -240,36 +238,23 @@ def show_graph(subscription_id, resource_name):
     if 'access_token' not in flask.session:
         return flask.redirect(flask.url_for('login'))
     data = flask.session.get('data')
-    print(data)
     sub = {}
     for item in data["value"]:
-        print(item)
         if item["subscriptionId"] == subscription_id:
             for item2 in item["resourceGroup"]:
-                print(item2)
                 if item2["name"] == resource_name:
                     item2["displayName"] = item["displayName"]
                     item2["subscriptionId"] = item["subscriptionId"]
                     sub["value"] = item2
-                    
-    print(sub)
     return flask.render_template('main.html', data=data, sub=sub)
 
+#This is not used 
 @app.route('/get_resource', methods=['POST'])
 def return_resource_json():
     #fitch data from azure management
-    print(flask.request.headers['Content-Type'])
     fetched = flask.request.get_json()
     sub_id = 'subscriptions/' +fetched['subscription']
     resource_group_name = fetched['resource_name']
-    print("subscription id is " + sub_id)
-    print("resource group name is " + resource_group_name)
-    #data = flask.session['data']
-    #sub_id = ''
-    #for item in data["value"]:
-    #    if(item["displayName"].encode('utf-8') == subscription_name):
-    #        sub_id = item["id"]
-    #        break
 
     data = []
     data.extend(virtual_machine(sub_id, resource_group_name)["value"])
@@ -316,8 +301,6 @@ def return_sql():
     sub_id = 'subscriptions/' +fetched['subscription']
     resource_group_name = fetched['resource_name']
     item = sql_database(sub_id, resource_group_name)
-    print("This is sql info!")
-    print(item)
     return flask.jsonify(item=item)
 
 @app.route('/get_webapps', methods=['POST'])
@@ -349,10 +332,7 @@ def return_error():
         interval = 'PT1H'
         endpoint = 'https://management.azure.com/' +  resource_id + '/providers/microsoft.insights/metrics?timespan=' + timespan + '&metricnames=' + metricname + '&aggregation=' + aggregation + '&interval=' + interval + '&api-version=2018-01-01'
         data = requests.get(endpoint, headers=http_headers, stream=False).json()
-        print('this is web apps error!!!')
-        print(data)
         point_data = data['value'][0]['timeseries'][0]['data'][-1]['count']
-        print(point_data)
         if(point_data == 0):
             judge = { "judge" : False}
         else:
@@ -377,13 +357,11 @@ def return_error():
         errors[third_metricname] = third_data['value'][0]['timeseries'][0]['data'][-1]['count']
         sum_error = 0
         for v in errors.values():
-            print(v)
             sum_error += v
         if(sum_error == 0):
             judge = { "judge" : False}
         else:
             judge = { "judge" : True }
-        print(judge)
         return flask.jsonify(item=judge, num=fetched['num'])
 
 @app.route('/usage')
