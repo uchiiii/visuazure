@@ -25,3 +25,6 @@ This app is under development. Following features should be added. ANY pull requ
 - Resources that can be displayed    
 Current supported resource are VM, Vnet, Webapps, SQL database, Load balancer, and Storage.
 - Detail change on each resource
+
+## Reference
+https://github.com/Azure-Samples/active-directory-python-webapp-graphapi
