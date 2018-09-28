@@ -12,10 +12,11 @@ By using this app, you can get a straightforward view of your resource group lik
 In this case, you can easily understand webapp is deployed from Github and has some data connection with two SQL databases. Moreover, the subnets and gateways are also visualized. 
 
 ## Requirement
-- Python 3.x.x
-    - flask
-    - adal
-
+- [Python 3+](https://www.python.org/downloads/release/python-364/)
+- [Flask](http://flask.pocoo.org/)
+- [ADAL Python](https://github.com/AzureAD/azure-activedirectory-library-for-python#install) 
+- [An Azure AD tenant](https://azure.microsoft.com/en-us/documentation/articles/active-directory-howto-tenant/)
+- [An Azure AD user](https://docs.microsoft.com/en-us/azure/active-directory/add-users-azure-active-directory). Note: this sample does not support Microsoft accounts. 
 ## Future Improvement
 This app is under development. Following features should be added. ANY pull requests are welcome.
 - UI improvement 
